@@ -1,5 +1,6 @@
 package com.petsalud.backendpetsalud.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,9 +32,19 @@ public class Mascota {
 
     private String sexo;
 
+    public void validarNombreYEspecie() {
+        if (nombre == null || nombre.isBlank()) {
+            throw new IllegalArgumentException("El nombre de la mascota es obligatorio");
+        }
+        if (especie == null || especie.isBlank()) {
+            throw new IllegalArgumentException("La especie de la mascota es obligatoria");
+        }
+    }
+
     // Relaciones
     @ManyToOne
     @JoinColumn(name = "usuario_id")
+    @JsonIgnoreProperties("mascotas")
     private Usuario propietario;
 
     @OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL)

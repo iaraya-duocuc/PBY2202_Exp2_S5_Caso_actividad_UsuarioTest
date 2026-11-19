@@ -104,6 +104,32 @@
 							<goal>report</goal>
 						</goals>
 					</execution>
+					<execution>
+						<id>check</id>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<rule>
+									<element>CLASS</element>
+									<includes>
+										<include>com.petsalud.backendpetsalud.service.CitaServiceImpl</include>
+										<include>com.petsalud.backendpetsalud.service.UsuarioServiceImpl</include>
+										<include>com.petsalud.backendpetsalud.service.MascotaServiceImpl</include>
+										<include>com.petsalud.backendpetsalud.entity.Mascota</include>
+									</includes>
+									<limits>
+										<limit>
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.80</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 			<plugin>

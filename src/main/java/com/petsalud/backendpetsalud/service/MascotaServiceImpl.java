@@ -25,6 +25,7 @@ public class MascotaServiceImpl implements MascotaService {
         Usuario propietario = usuarioRepository.findById(propietarioId)
                 .orElseThrow(() -> new IllegalArgumentException("Propietario no encontrado"));
 
+        mascota.validarNombreYEspecie();
         mascota.setPropietario(propietario);
         return mascotaRepository.save(mascota);
     }
@@ -37,6 +38,7 @@ public class MascotaServiceImpl implements MascotaService {
     @Override
     public Mascota actualizarMascota(Long id, Mascota mascotaActualizada) {
         return mascotaRepository.findById(id).map(mascota -> {
+            mascotaActualizada.validarNombreYEspecie();
             mascota.setNombre(mascotaActualizada.getNombre());
             mascota.setEspecie(mascotaActualizada.getEspecie());
             mascota.setRaza(mascotaActualizada.getRaza());

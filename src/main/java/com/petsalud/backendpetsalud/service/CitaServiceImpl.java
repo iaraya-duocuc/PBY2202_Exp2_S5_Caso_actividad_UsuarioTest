@@ -2,13 +2,14 @@ package com.petsalud.backendpetsalud.service;
 
 import com.petsalud.backendpetsalud.entity.Cita;
 import com.petsalud.backendpetsalud.entity.Mascota;
+import com.petsalud.backendpetsalud.entity.Rol;
 import com.petsalud.backendpetsalud.entity.Usuario;
 import com.petsalud.backendpetsalud.repository.CitaRepository;
 import com.petsalud.backendpetsalud.repository.MascotaRepository;
 import com.petsalud.backendpetsalud.repository.UsuarioRepository;
-import com.petsalud.backendpetsalud.service.CitaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,14 +28,27 @@ public class CitaServiceImpl implements CitaService {
     private UsuarioRepository usuarioRepository;
 
     @Override
+    @Transactional
     public Cita agendarCita(Long mascotaId, Long veterinarioId, LocalDateTime fechaHora, String motivo) {
         Mascota mascota = mascotaRepository.findById(mascotaId)
                 .orElseThrow(() -> new IllegalArgumentException("Mascota no encontrada"));
 
-        Usuario veterinario = usuarioRepository.findById(veterinarioId)
+        Usuario veterinario = usuarioRepository.findForUpdateById(veterinarioId)
                 .orElseThrow(() -> new IllegalArgumentException("Veterinario no encontrado"));
 
-        // Opcional: Verificar disponibilidad del veterinario en ese horario
+        if (veterinario.getRol() != Rol.VETERINARIO) {
+            throw new IllegalArgumentException("El usuario seleccionado no es veterinario");
+        }
+
+        Usuario propietario = mascota.getPropietario();
+        if (propietario == null || propietario.getId() == null
+                || !usuarioRepository.existsById(propietario.getId())) {
+            throw new IllegalArgumentException("La mascota debe tener un propietario registrado");
+        }
+
+        if (citaRepository.existsByVeterinarioIdAndFechaHoraAndEstadoNot(veterinarioId, fechaHora, "Cancelada")) {
+            throw new IllegalArgumentException("El veterinario ya tiene una cita en ese horario");
+        }
 
         Cita cita = Cita.builder()
                 .mascota(mascota)
